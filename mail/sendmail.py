@@ -17,7 +17,7 @@ class MailModel:
     def __init__(self):
         self.mail_host = "smtp.126.com"
         self.mail_user = "lanfeng007"
-        self.mail_pass = "xuheng.qq.com"
+        self.mail_pass = "xuh11eng1111"
         self.postfix = "126.com"
 
     def write_file(self,what):
