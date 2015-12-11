@@ -12,7 +12,7 @@ from email.mime.text import MIMEText
 import sys
 
 
-class MailModel:
+class Mail_Model:
  
     def __init__(self):
         self.mail_host = "smtp.126.com"
@@ -22,8 +22,8 @@ class MailModel:
 
     def write_file(self,what):
         with open("user.txt", "w") as f:
-            for key,value in what.items():
-                f.writelines(str(key)+','+str(value)+'\n')
+            for k,v in what.items():
+                f.writelines(str(k)+','+str(v)+'\n')
                 f.flush()
 
     def read_file(self):
@@ -53,7 +53,7 @@ class MailModel:
         if self.check_key(content) > 2:
             print  '发送次数超过3次'
         else:
-            me = "hello"+"<"+self.mail_user+"@"+self.postfix+">"
+            me = "业务中心"+"<"+self.mail_user+"@"+self.postfix+">"
             msg = MIMEText(content, _subtype = 'html', _charset = 'utf-8')
             msg['Subject'] = sub
             msg['From'] = me
@@ -77,6 +77,6 @@ if __name__=='__main__':
     mailuser_list=["369134@qq.com", "xuheng@tyread.com"]
     #title = sys.argv[1]
     #content = sys.argv[2]
-    mail = MailModel()
+    mail = Mail_Model()
     #mail.send_mail(mailuser_list,title, content)
-    mail.send_mail(mailuser_list,'告警文件','/fiodata/DataFiles/outside/NGLogHour/2015-12-09//nginxxf/2015-12-09_192.168.10.194_00.log.zip')
+    mail.send_mail(mailuser_list,'邮件告警','/fiodata/DataFiles/outside/NGLogHour/2015-12-09//nginxxf/2015-12-09_192.168.10.194_00.log.zip')
