@@ -17,7 +17,7 @@ class MailModel:
     def __init__(self):
         self.mail_host = "smtp.126.com"
         self.mail_user = "lanfeng007"
-        self.mail_pass = "xuh11eng1111"
+        self.mail_pass = "xuheng.qq.com"
         self.postfix = "126.com"
 
     def write_file(self,what):
@@ -34,15 +34,16 @@ class MailModel:
             return listStu
 
     def check_key(self,content):
-            listStu=self.read_file()
-            if content in listStu:
-                listStu[content] = int(listStu[content]) + 1
-                self.write_file(listStu)
-                return listStu[content]
-            else:
-                listStu.update({content:1})
-                self.write_file(listStu)
-                return listStu[content]
+        listStu=self.read_file()
+        if content in listStu:
+            listStu[content] = int(listStu[content]) + 1
+            self.write_file(listStu)
+            return listStu[content]
+        else:
+            listStu[content] = 1
+            # listStu.update({content:1})
+            self.write_file(listStu)
+            return listStu[content]
 
     def send_mail(self, user_list, sub, content):
         '''
@@ -78,4 +79,4 @@ if __name__=='__main__':
     #content = sys.argv[2]
     mail = MailModel()
     #mail.send_mail(mailuser_list,title, content)
-    mail.send_mail(mailuser_list,'告警文件','/fiodata/DataFiles/outside/NGLogHour/2015-12-09//nginxxf/2015-12-09_192.168.10.194_14.log.zip')
+    mail.send_mail(mailuser_list,'告警文件','/fiodata/DataFiles/outside/NGLogHour/2015-12-09//nginxxf/2015-12-09_192.168.10.194_00.log.zip')
