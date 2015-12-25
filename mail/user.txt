@@ -2,4 +2,4 @@
 /fiodata/DataFiles/outside/NGLogHour/2015-12-09//nginxxf/2015-12-09_192.168.10.194_14.log.zip,4
 /fiodata/DataFiles/outside/NGLogHour/2015-12-09//nginxxf/2015-12-09_192.168.10.194_12.log.zip,3
 /fiodata/DataFiles/outside/NGLogHour/2015-12-09//nginxxf/2015-12-09_192.168.10.194_01.log.zip,3
-/fiodata/DataFiles/outside/NGLogHour/2015-12-09//nginxxf/2015-12-09_192.168.10.194_00.log.zip,3
+/fiodata/DataFiles/outside/NGLogHour/2015-12-09//nginxxf/2015-12-09_192.168.10.194_00.log.zip,4
