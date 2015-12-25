@@ -1,0 +1,52 @@
+<style type="text/css">
+html,body{background:#000; color:#090;}
+</style>
+ 
+<div style="margin-top:10px;">
+<p id='log'></p>
+</div>
+<script src="http://cdn.bootcss.com/jquery/3.0.0-alpha1/jquery.js"></script>
+<script>
+function malert(){
+    alert("出现错误！")
+}
+$(function(){
+var line = {{line}};
+$.ajax({
+    url: "http://60.191.109.218:18487/getlog/192.168.10.50/"+line,
+    type: 'GET',
+    success: function(data){ 
+        if(data != 500){
+          $('#log').append('<p>'+data+'</p>');
+          var t  = setInterval(function(){
+             line++;
+             var url = "http://"+"60.191.109.218:18487" + "/getlog/192.168.10.50/"+line;
+             $.ajax({
+                url: url,
+                type: 'GET',
+                success: function(data){
+                     if(data != 500){
+                         $('#log').append('<p>'+data+'</p>');
+                         window.scrollTo(0,document.body.scrollHeight);
+                     }else{
+                          clearInterval(t);
+                     }
+                },
+                error: function(data) {
+                    malert();
+                    return false;
+                 }
+             });
+          },200); 
+        }else{
+          malert();
+        }
+    },
+    error: function(data) {
+        malert();
+        return false;
+    }
+});
+});
+ 
+</script>
