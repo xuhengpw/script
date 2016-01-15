@@ -7,7 +7,7 @@
 <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
 <script src="//cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
-<form id="dlg_form" class="form-inline" action="/deploy" method="get">
+<form class="form-inline" action="/deploy" method="get">
     <div>
     <div class="from-group">
         <label >项目名称</label>
@@ -34,7 +34,7 @@ $(function () {
             //获取表单md5值
             var md5_value = document.getElementById("md5_id").value;
             //拼接请求url
-            var url = "http://"+"60.191.109.218:18487" + "/deploy?project_name="+project_name+"&md5_value="+md5_value;
+            var url = "http://"+"192.168.20.163:18080" + "/deploy?project_name="+project_name+"&md5_value="+md5_value;
         $.ajax({
             type: "get",
             url: url,
