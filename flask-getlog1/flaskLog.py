@@ -43,7 +43,7 @@ def ajxGetLogHandle(hostname,line):
 @app.route('/getlog/<hostname>')
 def ajxGetLog(hostname):
     host = hostname
-    res = execcommand1(['sh',scriptname,host,project])
+    res = execcommand(['sh',scriptname,host,project])
     if not res[1]:
         try:
             if int(res[0]) > 20:
