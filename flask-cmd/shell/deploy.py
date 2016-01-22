@@ -16,7 +16,7 @@ def cmd (script):
 
 def zip_dir(dir,zipname):
     if not os.path.exists(dir):
-        print "%s is not exist" %s
+        print "%s is not exist" %dir
         sys.exit(1)
     zf = zipfile.ZipFile(zipname,'w',zipfile.ZIP_DEFLATED)
     for root,dirs,files in os.walk(dir):
@@ -58,16 +58,16 @@ host_package = {
     'operations-client':      'operations-client.war',
     'productClient-1.0.4':       'productClient-1.0.4.war',
     'uic-client':      'uic-client.war',
-    'ClientWap': 'ClientWap.war.zip'
+    'ClientWap': 'ClientWap.war'
     }
 #定义项目下载包命令以及URL
-get_curl_url = {'cic-content':'curl -u weihu:xxx -s -o /tmp/cic-content.war  http://192.168.10.166/sy/2013/cic/deploy/cic-content.war;curl -u weihu:xxxx -s  -o /ytxt/jboss/server/default/deploy/cic-business.war  http://192.168.10.166/sy/2013/cic/deploy/cic-business.war',
-              'ClientWap':'curl -u weihu:xxxx -s  -o /tmp/ClientWap.war.zip http://192.168.10.171/sy/2014/wap/deploy/ClientWap.war.zip',
-              'ReadWapPortal':'curl -u weihu:xxxx  -s -o /tmp/ReadWapPortal.war.zip http://192.168.10.166/sy/2013/www/deploy/ReadWapPortal.war.zip',
-              'culverin-web':'curl -u weihu:xxxx -s  -o /tmp/culverin-web.war http://192.168.10.166/sy/2013/xf/deploy/culverin-web.war  ',
-              'operations-client.war':'curl -u weihu:xxxx -s  -o /ytxt/jboss/server/default/deploy/operations-client.war  http://192.168.10.166/sy/2013/oic/deploy/operations-client.war',
-              'productClient-1.0.4':'curl -u weihu:xxxx -s  -o /ytxt/jboss/server/default/deploy/productClient-1.0.4.war  http://192.168.10.166/sy/2013/pic/deploy/productClient-1.0.4.war',
-              'uic-client':'curl -u weihu:xxxx -s -o /ytxt/jboss/server/default/deploy/uic-client.war http://192.168.10.166/sy/2013/uic/deploy/uic-client.war'
+get_curl_url = {'cic-content':'curl -u weihu:ydfSD89 -s -o /tmp/cic-content.war  http://192.168.10.166/sy/2013/cic/deploy/cic-content.war && curl -u weihu:ydfSD89 -s  -o /tmp/cic-business.war  http://192.168.10.166/sy/2013/cic/deploy/cic-business.war',
+              'ClientWap':'curl -u weihu:ydfSD89 -s  -o /tmp/ClientWap.war.zip http://192.168.10.171/sy/2014/wap/deploy/ClientWap.war.zip',
+              'ReadWapPortal':'curl -u weihu:ydfSD89  -s -o /tmp/ReadWapPortal.war.zip http://192.168.10.166/sy/2013/www/deploy/ReadWapPortal.war.zip',
+              'culverin-web':'curl -u weihu:ydfSD89 -s  -o /tmp/culverin-web.war http://192.168.10.166/sy/2013/xf/deploy/culverin-web.war  ',
+              'operations-client':'curl -u weihu:ydfSD89 -s  -o /tmp/operations-client.war  http://192.168.10.166/sy/2013/oic/deploy/operations-client.war',
+              'productClient-1.0.4':'curl -u weihu:ydfSD89 -s  -o /tmp/productClient-1.0.4.war  http://192.168.10.166/sy/2013/pic/deploy/productClient-1.0.4.war',
+              'uic-client':'curl -u weihu:ydfSD89 -s -o /tmp/uic-client.war http://192.168.10.166/sy/2013/uic/deploy/uic-client.war'
               }
 
 
@@ -85,21 +85,24 @@ if host_type  not in host_package:
         sys.exit()
 
 
-#获取下载包命令，并执行
-curl_war=get_curl_url[host_type]
-cmd(curl_war)
-
 
 # 执行备份操作,非ReadWapPortal，获取tmp最新一个文件,src=/tmp/xxx
 date = time.strftime('%Y%m%d%H%M',time.localtime(time.time()))
 datedir = '/ytxt/backup/%s' %(date)
-if host_type != 'ReadWapPortal':
-    salt_bak = "/tmp/"
-    l = os.listdir(salt_bak)
-    l.sort(key=lambda fn: os.path.getmtime(salt_bak+fn) if not os.path.isdir(salt_bak+fn) else 0)
-    src = os.path.join(salt_bak,l[-1])
-#src = '/ytxt/jboss/server/default/deploy/%s' %(host_package[host_type])
+if host_type == 'culverin-web':
+#    salt_bak = "/tmp/"
+#    l = os.listdir(salt_bak)
+#    l.sort(key=lambda fn: os.path.getmtime(salt_bak+fn) if not os.path.isdir(salt_bak+fn) else 0)
+#    src = os.path.join(salt_bak,l[-1])
+     src = '/ytxt/jbossculverin/server/default/deploy/%s' %(host_package[host_type])
+else:
+    src = '/ytxt/jboss/server/default/deploy/%s' %(host_package[host_type])
+
 dst = datedir + '/' + host_package[host_type]
+
+#获取下载包命令，并执行
+curl_war=get_curl_url[host_type]
+cmd(curl_war)
 
 #备份目录创建
 if not os.path.isdir(datedir):
@@ -122,45 +125,71 @@ if host_type == 'ReadWapPortal':
     else:
         print "Lack the necessary directories and files!"
         sys.exit(2)
+elif host_type =='ClientWap':
+    zipname = 'ClientWap.war.zip'
+    srczip = '/tmp/ClientWap.war.zip'
+    mhdir = '/ytxt/jboss_embed/server/default/deploy/ClientWap.war'
+    if os.path.isfile(srczip) and os.path.isdir(mhdir):
+        if not os.path.isdir(dst):
+            shutil.move(mhdir,dst)
+        f = zipfile.ZipFile(srczip,'r')
+        f.extractall('/ytxt/jboss_embed/server/default/deploy/')
+        f.close()
+    else:
+        print "Lack the necessary directories and files!"
+        sys.exit(2)
+elif host_type=="cic-content":
+        src1 = '/ytxt/jboss/server/default/deploy/cic-content.war'
+        src2 = '/ytxt/jboss/server/default/deploy/cic-business.war'
+        dst1 = datedir + '/' + 'cic-content.war'
+        dst2 = datedir + '/' + 'cic-business.war'
+        shutil.copy(src1,dst1)
+        shutil.copy(src2,dst2)
+        new_package1='/tmp/'+'cic-content.war'
+        new_package2='/tmp/'+'cic-business.war'
+        shutil.copy(new_package1,src1)
+        shutil.copy(new_package2,src2)
 else:
     if not os.path.isfile(dst):
         shutil.copy(src,dst)
+        new_package='/tmp/'+host_package[host_type]
+        shutil.copy(new_package,src)
 
 
 
 #根据机器，执行重启验证操作
 if host_type == 'ReadWapPortal':
-    cmd("/usr/bin/restartjboss")
+    cmd("/usr/bin/restartjboss > /dev/null 2>&1")
     time.sleep(5)
     filelog = '/ytxt/log/jboss_log/server.log'
     tail(filelog)
 elif host_type == 'culverin-web':
-    cmd("/usr/bin/restartculverinjboss")
+    cmd("/usr/bin/restartculverinjboss  > /dev/null 2>&1")
     time.sleep(5)
     filelog = '/ytxt/logculverin/culverin/core_culverin.log'
     tail(filelog)
 elif host_type == 'cic-content':
-    cmd("/usr/bin/restartjboss")
+    cmd("/usr/bin/restartjboss  > /dev/null 2>&1")
     time.sleep(5)
     filelog = '/ytxt/log/jboss_log/server.log'
     tail(filelog)
 elif host_type == 'operations-client':
-    cmd("/usr/bin/restartjboss")
+    cmd("/usr/bin/restartjboss  > /dev/null 2>&1 ")
     time.sleep(5)
     filelog = '/ytxt/log/jboss_log/server.log'
     tail(filelog)
 elif host_type == 'productClient-1.0.4':
-    cmd("/usr/bin/restartjboss")
+    cmd("/usr/bin/restartjboss  > /dev/null 2>&1 ")
     time.sleep(5)
     filelog = '/ytxt/log/clientProduct/clientProduct.log'
     tail(filelog)
 elif host_type == 'uic-client':
-    cmd("/usr/bin/restartjboss")
+    cmd("/usr/bin/restartjboss  > /dev/null 2>&1 ")
     time.sleep(5)
     filelog = '/ytxt/log/jboss_log/server.log'
     tail(filelog)
 elif host_type == 'ClientWap':
-    cmd("/usr/bin/restartemjboss")
+    cmd("/usr/bin/restartemjboss  > /dev/null 2>&1 ")
     time.sleep(5)
     filelog = '/ytxt/logembed/jboss_log/server.log'
     tail(filelog)
