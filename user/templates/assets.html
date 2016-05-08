@@ -1,0 +1,433 @@
+{% extends 'layout.html' %}
+{% block title %}资产管理{% endblock %}
+{% block link %}
+<link href="{{url_for('static', filename='bootstrap-datetimepicker-master/css/bootstrap-datetimepicker.min.css')}}" rel="stylesheet">
+<link href="{{url_for('static', filename='bootstrap-slider/css/bootstrap-slider.min.css')}}" rel="stylesheet">
+{% endblock %}
+{% block topassetactive %}class="active"{% endblock %}
+{% block leftassetactive %}class="active"{% endblock %}
+{% block container %}
+<div class="row">
+  <div class="col-md-1">
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#create-dialog" data-backdrop="false">新建</button>
+  </div>
+  <div class="col-md-11">
+    <form action="/assets/" method="post" class="form-inline">
+        <div class="form-group"/>
+        <input type="text" class="form-control" name="query" value="{{query}}"/>
+        <input type="submit" class="btn btn-default" value="查询"/>
+        </div>
+    </form>
+  </div>
+</div>
+<br/>
+<table class="table table-bordered table-striped table-hover">
+    <thead>
+        <tr>
+            <th>SN</th>
+            <th>IP(主机名)</th>
+            <th>机房</th>
+            <th>业务(使用者)</th>
+            <th>配置(cup,ram,disk)</th>
+            <th>操作系统</th>
+            <th>型号</th>
+            <th>采购时间</th>
+            <th>厂商</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for asset in pageList.contents %}
+            <tr>
+                <td>{{asset['sn']}}</td>
+                <td>{{asset['ip']}}({{asset['hostname']}})</td>
+                <td>{{machineRooms.get(asset['machine_room_id'], '')}}</td>
+                <td>{{asset['bussiness']}}({{asset['admin']}})</td>
+                <td>
+                  <ul >
+                    <li>CPU: {{asset['cpu']}} 核</li>
+                    <li>内存: {{asset['ram']}} G</li>
+                    <li>硬盘: {{asset['disk']}} G</li>
+                  </ul>
+                <td>{{asset['os']}}</td>
+                <td>{{asset['model']}}</td>
+                <td>{{asset['purchase_date']}}</td>
+                <td>{{asset['vendor']}}</td>
+                <td>
+                    <a class="btn-link" data-toggle="modal" data-target="#detail-dialog"  data-id="{{asset['id']}}" data-ip="{{asset['ip']}}" data-backdrop="false">查看</a>
+                    <a class="btn-link" data-toggle="modal" data-target="#update-dialog"  data-id="{{asset['id']}}" data-backdrop="false">更新</a>
+                    <a class="btn-link" data-toggle="modal" data-target="#delete-dialog" data-id="{{asset['id']}}" data-backdrop="false">删除</a>
+                    <a class="btn-link" data-toggle="modal" data-target="#cmd-dialog"  data-id="{{asset['id']}}" data-ip="{{asset['ip']}}" data-backdrop="false">执行</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+              <td colspan="10">暂无数据</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+    <tfoot></tfoot>
+</table>
+<div class="row">
+  <div class="col-md-3">
+    <div class="pagination-num">第 {{pageList.pageNum}} 页, 共 {{pageList.maxPageNum}} 页</div>
+  </div>
+  <div class="col-md-9">
+    <nav class="nav-page">
+      <ul class="pagination">
+        <li
+        {% if pageList.pageNum <= 1 %}
+        class="disabled"
+        {% endif %}
+        >
+          <a href="{{url_for('assets', query=query, pageNum=pageList.pageNum - 1)}}" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        {% for page in range(pageList.startPageNum, pageList.endPageNum + 1) %}
+        <li
+        {% if page == pageList.pageNum %}
+        class="active"
+        {% endif %}
+        ><a href="{{url_for('assets', query=query, pageNum=page)}}">{{page}}</a></li>
+        {% endfor %}
+        <li
+
+        {% if pageList.pageNum >= pageList.maxPageNum %}
+        class="disabled"
+        {% endif %}
+        >
+          <a href="{{url_for('assets', query=query, pageNum=pageList.pageNum + 1)}}" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
+<div class="modal fade" id="create-dialog" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="exampleModalLabel">新建</h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal">
+          <div class="form-group">
+            <label for="sn" class="col-sm-2 control-label">编号</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="sn">
+          </div>
+          </div>
+          <div class="form-group">
+            <label for="ip" class="col-sm-2 control-label">IP地址</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="ip">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="hostname" class="col-sm-2 control-label">主机名</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="hostname">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="machine_room_id" class="col-sm-2 control-label">机房</label>
+            <div class="col-sm-10">
+              <select id="machine_room_id" class="form-control">
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="bussiness" class="col-sm-2 control-label">业务</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="bussiness">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="admin" class="col-sm-2 control-label">使用者</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="admin">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="cpu" class="col-sm-2 control-label">CPU</label>
+            <div class="col-sm-10">
+              <!--<input type="text" class="form-control" id="cpu">-->
+              <input id="cpu" class="form-control" data-slider-id='cpu-slider' type="text" data-slider-min="1" data-slider-max="56" data-slider-step="1" data-slider-value="28"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="ram" class="col-sm-2 control-label">内存</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="ram" data-slider-id='ram-slider' data-slider-min="1" data-slider-max="128" data-slider-step="1" data-slider-value="16">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="disk" class="col-sm-2 control-label">硬盘</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="disk" data-slider-id='disk-slider' data-slider-min="1" data-slider-max="2048" data-slider-step="1" data-slider-value="512">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="os" class="col-sm-2 control-label">操作系统</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="os">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="model" class="col-sm-2 control-label">型号</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="model">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="purchase_date" class="col-sm-2 control-label">采购时间</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="purchase_date">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="vendor" class="col-sm-2 control-label">厂商</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="vendor">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button type="button" class="btn btn-primary btn-create">确定</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="detail-dialog" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="exampleModalLabel">查看</h4>
+      </div>
+      <div class="modal-body">
+        <div id="host_detail" style="width: 580px; height: 280px;"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="cmd-dialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">执行命令</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="alert alert-danger" role="alert" id="cmd-error"></div>
+                    <input type="hidden" id="cmd-id" name="id"/>
+                    <div class="form-group">
+                        <label for="cmd-ipadd" class="col-sm-2 control-label">IP地址</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="cmd-ipadd" name='ipadd'>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="cmd-user" class="col-sm-2 control-label">用户名</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="cmd-user" name='user'>
+                        </div>
+                    </div>
+                                        <div class="form-group">
+                        <label for="cmd-passwd" class="col-sm-2 control-label">密码</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="cmd-passwd" name='passwd'>
+                        </div>
+                    </div>
+                                        <div class="form-group">
+                        <label for="cmd-line" class="col-sm-2 control-label">命令</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" id="cmd-line" name='line' > </textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="cmd-btn">执行</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+<script src="{{url_for('static', filename='bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.min.js')}}"></script>
+<script src="{{url_for('static', filename='bootstrap-datetimepicker-master/js/locales/bootstrap-datetimepicker.zh-CN.js')}}"></script>
+<script src="{{url_for('static', filename='bootstrap-slider/js/bootstrap-slider.min.js')}}"></script>
+<script src="{{url_for('static', filename='Highcharts-4.2.3/js/highcharts.js')}}"></script>
+
+{% endblock %}
+{% block js%}
+jQuery(document).ready(function() {
+  jQuery('#create-dialog').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var modal = $(this);
+    jQuery("#machine_room_id").empty();
+    jQuery.get('/machine_rooms/', function(res) {
+      //{'id' : 'name'}
+      for(var id in res) {
+        jQuery("#machine_room_id").append("<option value='" + id + "'>" + res[id] + "</option>");
+      }
+    }, 'json');
+  });
+      jQuery('#cmd-dialog').on('show.bs.modal', function (event) {
+        var button = jQuery(event.relatedTarget);
+        var modal = jQuery(this);
+        jQuery('#cmd-error').hide();
+        modal.find('.modal-title').text('服务器: ' + button.data('ip') + '远程命令');
+        modal.find('#cmd-ipadd').val(button.data('ip'));
+    });
+    jQuery('#cmd-btn').on('click', function() {
+        var ip = jQuery('#cmd-ipadd').val(),
+            user = jQuery('#cmd-user').val(),
+            passwd = jQuery('#cmd-passwd').val(),
+            cline = jQuery('#cmd-line').val();
+        jQuery.post('/remotercmd/', {
+            'ip' : ip,
+            'user' : user,
+            'passwd' : passwd,
+            'cline': cline
+        }, function(data){
+            if(data['ok']) {
+                jQuery('#cmd-dialog').modal('hide');
+                swal({
+                    'title' : '',
+                    'text' : '更新成功',
+                    'type' : 'success',
+                    'timer' : 2000,
+                    'showConfirmButton' : false
+                });
+                window.location.reload();
+            } else {
+                jQuery('#cmd-error').text(data['result']).show();
+            }
+        }, 'json');
+    });
+  jQuery('#detail-dialog').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget),
+        host_id = button.data('id'),
+        host_ip = button.data('ip'),
+        categories = [],
+        series =[];
+    jQuery.get('/moniters/' + host_ip + '/', function(res) {
+      categories = res['data']['categories'];
+      series = res['data']['series'];
+      $('#host_detail').highcharts({
+        title: {
+            text: '主机' + host_ip + '的CPU，内存使用情况',
+            x: -20 //center
+        },
+        credits: {
+          enabled: false
+        },
+        xAxis: {
+            categories: categories
+        },
+        yAxis: {
+            title: {
+                text: '使用率'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        },
+        tooltip: {
+            valueSuffix: '%'
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle',
+            borderWidth: 0
+        },
+        series: series
+    });
+    }, 'json');
+  });
+  jQuery('#purchase_date').datetimepicker({
+    language:  'zh-CN',
+    format: 'yyyy-mm-dd',
+    minView: 2
+  });
+  $('#cpu').slider({
+      formatter: function(value) {
+        return 'CPU: ' + value + '核';
+      }
+  });
+  $('#ram').slider({
+      formatter: function(value) {
+        return '内存: ' + value + 'G';
+      }
+  });
+  $('#disk').slider({
+      formatter: function(value) {
+        return '硬盘: ' + value + 'G';
+      }
+  });
+  jQuery('.btn-create').bind('click', function() {
+    var ids = ['sn', 'ip', 'hostname', 'machine_room_id', 'bussiness', 'admin', 'cpu', 'ram', 'disk', 'os', 'model', 'purchase_date', 'vendor'],
+    params = {},
+    id = '';
+    for(var i = 0, j = ids.length; i < j; ++i) {
+        params[ids[i]] = jQuery('#' + ids[i]).val();
+    }
+    jQuery.post('/addAsset/', params, function(res) {
+        if(res['ok']) {
+          $('#create-dialog').modal('hide');
+          swal({
+              'title' : '',
+              'text' : '添加成功',
+              'type' : 'success',
+              'timer' : 2000,
+              'showConfirmButton' : false
+          });
+          window.location.reload();
+        } else {
+          var tip = false;
+          if(res['errors']) {
+            jQuery('.has-error').removeClass('has-error');
+            for(var key in res['errors']) {
+              tip = true;
+              jQuery('#' + key).parent().parent().addClass('has-error');
+              jQuery('#' + key).attr('data-toggle', 'tooltip').attr('data-trigger', 'manual').attr('data-title', res['errors'][key]);
+            }
+            if(!tip) {
+              jQuery('input[data-toggle="tooltip"]').removeAttr('data-toggle').remove('data-tigger').remove('data-title').tooltip('hide');
+              swal({
+                  'title' : '',
+                  'text' : res['result'],
+                  'type' : 'error',
+                  'showConfirmButton' : true
+              });
+            } else {
+              jQuery('input[data-toggle="tooltip"]').each(function(){
+                 if(jQuery(this).attr('id') in res['errors']) {
+                    return true;
+                 }
+                 jQuery(this).removeAttr('data-toggle').remove('data-tigger').remove('data-title').tooltip('hide');
+              });
+              jQuery('input[data-toggle="tooltip"]').tooltip('show');
+            }
+          }
+        }
+    }, 'json')
+  });
+
+});
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'layout.html' %}
+{% block title %}业务管理{% endblock %}
+{% block topopsactive %}class="active"{% endblock %}
+{% block leftopsactive %}class="active"{% endblock %}
+{% block container %}
+    <div class="row">
+        <div class="col-md-11">
+            <form class="form-inline" action="/deploy" method="get">
+                <div>
+                    <div class="from-group">
+                        <label>项目名称</label>
+                        <select class="form-control" id="project_id" name="project_name">
+                            {% for i in pj_list %}
+                                <option value="{{ i }}">{{ i }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>项目md5值</label>
+                        <input type="text" class="form-control" id="md5_id" name="md5_value"
+                               placeholder="3f18cdc5d988daf98ac23f1a00fc8a84">
+                    </div>
+                </div>
+                <input id="submit_id" type="button" class="btn btn-default" value="提交部署">
+            </form>
+        </div>
+    </div>
+
+    <p id="p_id"></p>
+
+{% endblock %}
+{% block js %}
+    $(function () {
+    $("#submit_id").click(function () {  //"提交"按钮单击事件
+    //获取表单项目名称
+    var project_name = document.getElementById("project_id").value;
+    //获取表单md5值
+    var md5_value = document.getElementById("md5_id").value;
+    //拼接请求url
+    var url = "http://" + "192.168.20.163:18080" + "/deploy?project_name=" + project_name + "&md5_value=" + md5_value;
+    //按钮状态变更
+    document.getElementById("submit_id").disabled = false;
+    $.ajax({
+    type: "get",
+    url: url,
+    success: function (msg) {
+    $('#p_id').append('<p>' + msg + '</p>');
+    }
+    })
+    })
+    }
+    )
+
+{% endblock %}

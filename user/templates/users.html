@@ -1,0 +1,308 @@
+{% extends 'layout.html' %}
+{% block title%}用户管理{% endblock %}
+{% block topuseractive %}class="active"{% endblock %}
+{% block leftuseractive %}class="active"{% endblock %}
+{% block container %}
+<div class="row">
+    <div class="col-md-1">
+        <button class="btn btn-primary" data-toggle="modal" data-target="#create-dialog" data-backdrop="false">新建</button>
+    </div>
+    <div class="col-md-11">
+        <form action="/users/" method="post" class="form-inline">
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="请输入用户名" name="query" value="{{query}}">
+                <button class="btn btn-default" type="submit">查询</button>
+            </div>                  
+        </form>                    
+    </div>
+</div>
+<br />
+<div class="row">
+    <table class="table table-bordered table-striped table-hover">
+        <thead>
+            <tr>
+                <th>用户名</th>
+                <th>手机号</th>
+                <th>年龄</th>
+                <th>性别</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in pageList.contents %}
+            <tr>
+                <td>{{user['username']}}</td>
+                <td>{{user['telephone']}}</td>
+                <td>{{user['age']}}</td>
+                <td>{{user['sex']}}</td>
+                <td>{{user['status']}}</td>
+                <td>
+                    <a class="btn-link" data-toggle="modal" data-target="#update-dialog" data-username="{{user['username']}}" data-telephone="{{user['telephone']}}" data-age="{{user['age']}}" data-id="{{user['id']}}" data-backdrop="false">更新</a>
+                    <a class="btn-link" data-toggle="modal" data-target="#delete-dialog" data-id="{{user['id']}}" data-username="{{user['username']}}" data-backdrop="false">删除</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="6">暂无数据</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="row">
+        <div class="col-md-8">
+            <div>当前是{{pageList.pageNum}}, 共有{{pageList.maxPageNum}}页</div>
+        </div>
+        <div class="col-md-4">
+            <nav class="nav-btn-right">
+              <ul class="pagination">
+                <li
+                {% if pageList.pageNum == 1 %}
+                class="disabled"
+                {% endif %}
+                >
+                    <a 
+                    {% if pageList.pageNum == 1 %}
+                        href="javascript:void(0);"
+                    {% else %}
+                        href="/users/?query={{query}}&pageNum={{pageList.pageNum - 1}}&pageSize={{pageList.pageSize}}"
+                    {% endif %}
+                    aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                  </a>
+                </li>
+                {% for page in range(pageList.startPageNum, pageList.endPageNum + 1) %}
+                <li
+                {% if page == pageList.pageNum %}
+                class="active"
+                {% endif %}
+                ><a href="/users/?query={{query}}&pageNum={{page}}&pageSize={{pageList.pageSize}}">{{page}}</a></li>
+                {% endfor %}
+                <li
+                {% if pageList.maxPageNum == pageList.pageNum %}
+                class="disabled"
+                {% endif %}
+                >
+                  <a 
+                  {% if pageList.maxPageNum == pageList.pageNum %}
+                    href="javascript:void(0);"
+                  {% else %}
+                    href="/users/?query={{query}}&pageNum={{pageList.pageNum + 1}}&pageSize={{pageList.pageSize}}" 
+                  {%endif %}
+                  aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                  </a>
+                </li>
+              </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="create-dialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">创建用户</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="alert alert-danger" role="alert" id="create-error"></div>
+                    <div class="form-group">
+                        <label for="create-username" class="col-sm-2 control-label">用户名</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="create-username" name='username'>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="create-password" class="col-sm-2 control-label">密码</label>
+                        <div class="col-sm-10">
+                            <input type="password" class="form-control" id="create-password" name='password'>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="create-ms-password" class="col-sm-2 control-label">确认密码</label>
+                        <div class="col-sm-10">
+                            <input type="password" class="form-control" id="create-ms-password" name='ms-password'>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="create-telphone" class="col-sm-2 control-label">手机号</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="create-telephone" name='telephone'>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="create-age" class="col-sm-2 control-label">年龄</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="create-age" name='age'>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="create-btn">创建</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="update-dialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">更新用户</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="alert alert-danger" role="alert" id="update-error"></div>
+                    <input type="hidden" id="update-id" name="id"/>
+                    <div class="form-group">
+                        <label for="update-telephone" class="col-sm-2 control-label">手机号</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="update-telephone" name='telephone'>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-age" class="col-sm-2 control-label">年龄</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="update-age" name='age'>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="update-btn">更新</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="delete-dialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">删除用户</h4>
+            </div>
+            <div class="modal-body">
+                确定删除用户 <span id="delete-username"></span> ?
+                <input type="hidden" id="delete-id"/>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="delete-btn">删除</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+jQuery(document).ready(function() {
+    jQuery('#create-dialog').on('show.bs.modal', function (event) {
+        jQuery('#create-error').hide();
+        jQuery('#create-username').val(''),
+        jQuery('#create-password').val(''),
+        jQuery('#create-ms-password').val(''),
+        jQuery('#create-telephone').val(''),
+        jQuery('#create-age').val('');
+    });
+    jQuery('#create-btn').on('click', function() {
+        var username = jQuery('#create-username').val(),
+            password = jQuery('#create-password').val(),
+            ms_password = jQuery('#create-ms-password').val();
+            telephone = jQuery('#create-telephone').val(),
+            age = jQuery('#create-age').val();
+            jQuery.post('/addUser/', {
+                'username' : username,
+                'password' : password,
+                'ms-password' : ms_password,
+                'telephone' : telephone,
+                'age' : age
+            }, function(data){
+                if(data['ok']) {
+                    jQuery('#create-dialog').modal('hide');
+                    swal({
+                        'title' : '',
+                        'text' : '添加成功',
+                        'type' : 'success',
+                        'timer' : 2000,
+                        'showConfirmButton' : false
+                    });
+                    window.location.reload(); 
+                } else {
+                    jQuery('#create-error').text(data['result']).show();
+                }
+            }, 'json');
+    });
+
+    jQuery('#update-dialog').on('show.bs.modal', function (event) {
+        var button = jQuery(event.relatedTarget);
+        var modal = jQuery(this);
+        jQuery('#update-error').hide();
+        modal.find('.modal-title').text('更新用户 ' + button.data('username') + '信息');
+        modal.find('#update-id').val(button.data('id'));
+        modal.find('#update-telephone').val(button.data('telephone'));
+        modal.find('#update-age').val(button.data('age'));
+    });
+    jQuery('#update-btn').on('click', function() {
+        var id = jQuery('#update-id').val(),
+            telephone = jQuery('#update-telephone').val(),
+            age = jQuery('#update-age').val();
+        jQuery.post('/updateUser/', {
+            'id' : id,
+            'telephone' : telephone,
+            'age' : age
+        }, function(data){
+            if(data['ok']) {
+                jQuery('#update-dialog').modal('hide');
+                swal({
+                    'title' : '',
+                    'text' : '更新成功',
+                    'type' : 'success',
+                    'timer' : 2000,
+                    'showConfirmButton' : false
+                });
+                window.location.reload(); 
+            } else {
+                jQuery('#update-error').text(data['result']).show();
+            }
+        }, 'json');
+    });
+
+    jQuery('#delete-dialog').on('show.bs.modal', function (event) {
+        var button = jQuery(event.relatedTarget);
+        var modal = jQuery(this);
+        modal.find('#delete-username').text(button.data('username'));
+        modal.find('#delete-id').val(button.data('id'));
+    });
+    jQuery('#delete-btn').on('click', function() {
+        jQuery.get('/deleteUser/?id=' + jQuery('#delete-id').val(), function(data) {
+            jQuery('#delete-dialog').modal('hide');
+            if(data['ok']) {
+                swal({
+                    'title' : '',
+                    'text' : '删除成功',
+                    'type' : 'success',
+                    'timer' : 2000,
+                    'showConfirmButton' : false
+                });
+                window.location.reload();     
+            } else {
+                swal({
+                    'title' : '',
+                    'text' : '删除失败',
+                    'type' : 'error',
+                    'timer' : 2000,
+                    'showConfirmButton' : false
+                });
+            }
+        }, 'json');
+         
+    });
+});
+{% endblock %}

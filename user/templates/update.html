@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>更新用户</title>
+        <style type="text/css">
+        .error{
+            color:red;
+        }
+        .success{
+            color:green;
+        }
+        </style>
+    </head>
+    <body>
+        <form action="/updateUser/" method="post">
+            {% if result %}
+                <div class="
+                {% if result %}
+                error
+                {% endif %}
+                ">{{result}}</div>
+            {% endif %}
+            <input type="hidden" name="id" value="{{id}}"/>
+            用户名: <input type="text" name="username" value="{{username}}" disabled="disabled" /><br/>
+            手机号: <input type="text" name="telephone" value="{{telephone}}"/><br/>
+            年龄: <input type="text" name="age" value="{{age}}"/><br/>
+            <input type="submit" value="更新"/>
+            <a href="/users/">返回</a>
+        </form>
+    </body>
+</html>

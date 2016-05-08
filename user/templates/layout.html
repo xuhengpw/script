@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>{% block title%}{% endblock %}</title>
+        <link href="{{url_for('static', filename='bootstrap-3.3.5-dist/css/bootstrap.min.css')}}" rel="stylesheet">
+        <link href="{{url_for('static', filename='sweetalert-1.1.1/dist/sweetalert.css')}}" rel="stylesheet">
+        <link href="{{url_for('static', filename='cmdb.css')}}" rel="stylesheet">
+        {% block link %} {% endblock %}
+        <style type="text/css">
+        {% block style %}{% endblock %}
+        </style>
+    </head>
+    <body>
+        <nav class="navbar navbar-inverse navbar-fixed-top">
+          <div class="container-fluid">
+            <div class="navbar-header">
+              <a class="navbar-brand" href="javascript:void(0);">CMDB</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+              <ul class="nav navbar-nav">
+                  <li {% block topuseractive %}{% endblock %}><a href="/users/">用户管理</a></li>
+                  <li {% block topassetactive %}{% endblock %}><a href="/assets/">资产管理</a></li>
+              </ul>
+              <ul class="nav navbar-nav navbar-right">
+                <li><a href="javascript:void(0);">欢迎{{session['user']['username']}}, </a></li>
+                <li><a href="/logout/">退出</a></li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+        <div class="container-fluid mycontainer">
+          <div class="row">
+            <div class="col-md-1 sidebar">
+              <ul class="nav nav-sidebar">
+                <li {% block leftuseractive %}{% endblock %}><a href="/users/">用户管理</a></li>
+                <li {% block leftassetactive %}{% endblock %}><a href="/assets/">资产管理</a></li>
+              </ul>
+            </div>
+            <div class="col-md-11 col-md-offset-1 main">
+            {% block container %}{% endblock %}
+            </div>
+          </div>
+        </div>
+        
+        <script src="{{url_for('static', filename='jquery-1.12.1.min.js')}}"></script>
+        <script src="{{url_for('static', filename='sweetalert-1.1.1/dist/sweetalert.min.js')}}"></script>
+        <script src="{{url_for('static', filename='bootstrap-3.3.5-dist/js/bootstrap.min.js')}}"></script>
+        {% block script %}{% endblock %}
+        <script type="text/javascript">
+        {% block js%} {%endblock%}
+        </script>
+    </body>
+</html>
