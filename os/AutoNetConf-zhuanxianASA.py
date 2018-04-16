@@ -38,7 +38,7 @@ def Cisco(ip):
         result = net_connect.send_command(cmd)
         save.write(result)
 	time.sleep(1)
-	os.system('zip -P wdyunwei@2017 %s %s'%(filezip,filename))
+	os.system('zip -P wdy017 %s %s'%(filezip,filename))
     net_connect.disconnect() 
     return  filezip
 	
